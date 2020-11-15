@@ -2,29 +2,21 @@ name: Build cauth
 
 on: [push]
 
-env:
-  PYENV_ROOT: /root/.pyenv
-  PATH: ${PATH}:${PYENV_ROOT}/bin:${PYENV_ROOT}/shims
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.9"
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get --no-install-recommends --yes install shellcheck
           python -m pip install --upgrade pip
           python -m pip install pipenv
-          git clone https://github.com/pyenv/pyenv.git --branch v1.2.21 --depth 1 ${PYENV_ROOT}
           pipenv sync --dev
       - name: Test
         run: ./test.sh
