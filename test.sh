@@ -1,8 +1,5 @@
 #!/bin/bash -e
 
-echo "Linting shell scripts..."
-find . -name '*.sh' -exec shellcheck -o all --severity style -x {} +
-
 echo "Linting YAML..."
 yamllint . --strict
 

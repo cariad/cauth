@@ -13,8 +13,6 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get --no-install-recommends --yes install shellcheck
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv sync --dev
