@@ -17,25 +17,36 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv sync --dev
-      - name: Version
-        run: |
-          version=${GITHUB_REF##*/}
-          echo "${version}" | tee cauth/VERSION
       - name: Test
         run: pipenv run ./test.sh
-      - name: Build
+      - name: Development build
         run: |
           rm -rf dist
+          echo "0.0.0" > cauth/VERSION
           pipenv run python setup.py bdist_wheel
-      - name: Smoke
+      - name: Development smoke
         run: |
-          echo "${version}"
-          mv dist/* dist/cauth.whl
-          pipenv install dist/cauth.whl
+          pipenv install dist/cauth-0.0.0-py3-none-any.whl
           pipenv run cauth --version | tee version.tmp
-          grep -qF "${version}" version.tmp
+          grep -qF "0.0.0" version.tmp
+      - name: Versioned build
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        run: |
+          rm -rf dist
+          echo "${GITHUB_REF##*/}" > cauth/VERSION
+          pipenv run python setup.py bdist_wheel
+      - name: Versioned smoke
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        run: |
+          pipenv uninstall cauth
+          pipenv install "dist/$(ls dist)"
+          pipenv run cauth --version | tee version.tmp
+          grep -qF "${GITHUB_REF##*/}" version.tmp
+
       # - name: Versioned build
       #   uses: pypa/gh-action-pypi-publish@master
       #   with:
       #     user: __token__
       #     password: ${{ secrets.PYPI_TOKEN }}
+      #     version=${GITHUB_REF##*/}
+      #     echo "${version}" | tee cauth/VERSION
