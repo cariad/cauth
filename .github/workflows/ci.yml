@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.9"
-      - name: Install dependencies
+      - name: Install
         run: |
           python -m pip install --upgrade pip
           python -m pip install pipenv
@@ -21,7 +21,7 @@ jobs:
         run: pipenv run ./test.sh
       - name: Build
         run: pipenv run python setup.py bdist_wheel
-      - name: Smoke build
+      - name: Smoke
         run: |
-          pipenv install ./build/*.whl
+          pipenv install dist/cauth-_1._1._1-py3-none-any.whl
           pipenv run cauth --version
