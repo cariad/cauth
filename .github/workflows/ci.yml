@@ -26,22 +26,22 @@ jobs:
       - name: Development build
         if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags')
         run: |
-          rm -rf dist
           echo "0.0.0" > cauth/VERSION
+          rm -rf dist
           pipenv run python setup.py bdist_wheel
 
       - name: Development smoke
         if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags')
         run: |
-          pipenv install dist/cauth-0.0.0-py3-none-any.whl
+          pipenv install "dist/$(ls dist)"
           pipenv run cauth --version | tee version.tmp
           grep -qF "0.0.0" version.tmp
 
       - name: Versioned build
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
-          rm -rf dist
           echo "${GITHUB_REF##*/}" > cauth/VERSION
+          rm -rf dist
           pipenv run python setup.py bdist_wheel
 
       - name: Versioned smoke
