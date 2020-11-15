@@ -1,6 +1,7 @@
 name: Build cauth
 
-on: [push]
+on:  # yamllint disable-line rule:truthy
+  - push
 
 jobs:
   build:
@@ -18,3 +19,5 @@ jobs:
           pipenv sync --dev
       - name: Test
         run: ./test.sh
+      - name: Build
+        run: python setup.py bdist_wheel
