@@ -20,7 +20,7 @@ jobs:
       - name: Test
         run: pipenv run ./test.sh
       - name: Build
-        run: python setup.py bdist_wheel
+        run: pipenv run python setup.py bdist_wheel
       - name: Smoke build
         run: |
           pipenv install ./build/*.whl
