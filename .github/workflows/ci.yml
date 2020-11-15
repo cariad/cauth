@@ -17,11 +17,25 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pipenv
           pipenv sync --dev
+      - name: Version
+        run: |
+          version=${GITHUB_REF##*/}
+          echo "${version}" | tee cauth/VERSION
       - name: Test
         run: pipenv run ./test.sh
       - name: Build
-        run: pipenv run python setup.py bdist_wheel
+        run: |
+          rm -rf dist
+          pipenv run python setup.py bdist_wheel
       - name: Smoke
         run: |
-          pipenv install dist/cauth-_1._1._1-py3-none-any.whl
-          pipenv run cauth --version
+          echo "${version}"
+          mv dist/* dist/cauth.whl
+          pipenv install dist/cauth.whl
+          pipenv run cauth --version | tee version.tmp
+          grep -qF "${version}" version.tmp
+      # - name: Versioned build
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #     user: __token__
+      #     password: ${{ secrets.PYPI_TOKEN }}
