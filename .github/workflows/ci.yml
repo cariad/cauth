@@ -18,6 +18,10 @@ jobs:
           python -m pip install pipenv
           pipenv sync --dev
       - name: Test
-        run: ./test.sh
+        run: pipenv run ./test.sh
       - name: Build
         run: python setup.py bdist_wheel
+      - name: Smoke build
+        run: |
+          pipenv install ./build/*.whl
+          pipenv run cauth --version
