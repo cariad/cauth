@@ -7,4 +7,5 @@ verify_ssl = true
 tupper = "*"
 
 [requires]
-python_version = "3.9"
+# The Python version to run with will be injected at run time.
+# python_version = "3.9"

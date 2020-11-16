@@ -1,16 +1,19 @@
 #!/bin/bash -e
 
-pipenv uninstall tupper
+# cp Pipfile.template Pipfile
+# echo "${PYTHON_VERSION:?}" >> Pipfile
 
-set +e
-pipenv run python -m tupper
-returned=$?
-set -e
+# pipenv uninstall tupper
 
-if [[ "${returned}" != "1" ]]; then
-  echo "Expected tupper execution to fail gracefully: ${returned}"
-  exit 1
-fi
+# set +e
+# pipenv run python -m tupper
+# returned=$?
+# set -e
 
-cauth pipenv install
-pipenv run python -m tupper
+# if [[ "${returned}" != "1" ]]; then
+#   echo "Expected tupper execution to fail gracefully: ${returned}"
+#   exit 1
+# fi
+
+# cauth pipenv install
+# pipenv run python -m tupper
