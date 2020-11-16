@@ -147,12 +147,11 @@ jobs:
         run: |
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          export PYTHON_VERSION="${{ matrix.python-version }}"
 
           cd testing/sample_project
 
           cp Pipfile.template Pipfile
-          echo "python_version = \"${PYTHON_VERSION:?}\"" >> Pipfile
+          echo "python_version = \"${{ matrix.python-version }}\"" >> Pipfile
 
           pip install --upgrade pip
           pip install pipenv
@@ -167,7 +166,7 @@ jobs:
             exit 1
           fi
 
-          pipenv install "$(ls *.whl)"
+          pipenv install "$(ls ../../*.whl)"
 
           pipenv run cauth --version | tee version.tmp
           grep -qF "${GITHUB_REF##*/}" version.tmp
