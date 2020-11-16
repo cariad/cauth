@@ -30,20 +30,6 @@ jobs:
           python -m pip install pipenv
           pipenv lock --dev --requirements > requirements.txt
 
-      # - name: Push "requirements.txt"
-      #   run: |
-      #     git config user.name  github-actions
-      #     git config user.email github-actions@github.com
-      #     git add requirements.txt
-      #     set +e
-      #     git diff --exit-code
-      #     changed="$?"
-      #     set -e
-      #     if [[ "${changed}" == "1" ]]; then
-      #       git commit -m "Updated by CI"
-      #       git push
-      #     fi
-
       - name: Archive requirements.txt
         uses: actions/upload-artifact@v2
         with:
@@ -75,7 +61,7 @@ jobs:
         run: ./lint.sh
 
   unit_test:
-    name: Test with Python ${{ matrix.python-version }}
+    name: Unit test (Python ${{ matrix.python-version }})
     needs: update_requirements
     runs-on: ubuntu-latest
     strategy:
@@ -103,7 +89,7 @@ jobs:
         run: ./test.sh
 
   build:
-    name: Build wheel
+    name: Build
     needs: update_requirements
     runs-on: ubuntu-latest
     steps:
@@ -141,7 +127,7 @@ jobs:
         python-version:
           - "3.8"
           - "3.9"
-    name: CLI test with Python ${{ matrix.python-version }}
+    name: CLI test (Python ${{ matrix.python-version }})
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -158,7 +144,9 @@ jobs:
           name: distributable
 
       - name: Install
-        run: pip install "$(ls *.whl)"
+        run: |
+          pip install --upgrade pip
+          pip install "$(ls *.whl)"
 
       - name: Smoke test
         run: |
@@ -167,6 +155,7 @@ jobs:
 
       - name: CLI test
         run: |
+          pip install pipenv
           cd testing/sample_project
           cp Pipfile.template Pipfile
           echo "${PYTHON_VERSION:?}" >> Pipfile
