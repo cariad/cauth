@@ -4,57 +4,152 @@ on:  # yamllint disable-line rule:truthy
   - push
 
 jobs:
-  ci:
+
+  # Update "requirements.txt" so we can test in multiple Python versions without needing
+  # pipenv everywhere.
+  update_requirements:
+    # Only when pushing to a development branch. Release tags and pulls into the main
+    # branch should have an up-to-date "requirements.txt" already.
+    if: github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/heads') &&
+        github.ref != 'refs/heads/main'
+
+    name: Update "requirements.txt" from Pipfile
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Freeze requirements
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pipenv
+          pipenv lock --requirements > requirements.txt
+
+      - name: Push "requirements.txt"
+        uses: actions/checkout@v2
+        run: |
+          git config user.name  github-actions
+          git config user.email github-actions@github.com
+          git add requirements.txt
+          git commit -m "Updated by CI"
+          git push
+
+  lint:
+    name: Lint
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Lint
+        run: ./lint.sh
+
+  unit_test:
+    strategy:
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.9"
+    name: Test with Python ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Test
+        run: ./test.sh
+
+  build:
+    needs:
+      - update_requirements
+      - lint
+      - unit_test
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 
       - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pipenv
-          pipenv sync --dev
+        run: pip install -r requirements.txt
 
-      - name: Test
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags')
-        run: pipenv run ./test.sh
+      - name: Version
+        run: echo "${GITHUB_REF##*/}" > cauth/VERSION
 
-      - name: Development build
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags')
-        run: |
-          echo "0.0.0" > cauth/VERSION
-          rm -rf dist
-          pipenv run python setup.py bdist_wheel
+      - name: Build
+        run: rm -rf dist && pipenv run python setup.py bdist_wheel
 
-      - name: Development smoke
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags')
-        run: |
-          pipenv install "dist/$(ls dist)"
-          pipenv run cauth --version | tee version.tmp
-          grep -qF "0.0.0" version.tmp
+      - name: Archive distributable
+        uses: actions/upload-artifact@v2
+        with:
+          name: distributable
+          path: dist
+          retention-days: 1
 
-      - name: Versioned build
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        run: |
-          echo "${GITHUB_REF##*/}" > cauth/VERSION
-          rm -rf dist
-          pipenv run python setup.py bdist_wheel
+  cli_test:
+    strategy:
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.9"
+    name: CLI test with Python ${{ matrix.python-version }}
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
 
-      - name: Versioned smoke
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download build distributable
+        uses: actions/download-artifact@v2
+        with:
+          name: distributable
+
+      - name: Install
+        run: pip install "dist/$(ls dist)"
+
+      - name: Smoke test
         run: |
-          pipenv uninstall cauth
-          pipenv install "dist/$(ls dist)"
-          pipenv run cauth --version | tee version.tmp
+          cauth --version | tee version.tmp
           grep -qF "${GITHUB_REF##*/}" version.tmp
 
+      - name: CLI test
+        run: |
+          cd testing/sample_project
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          ./assert.sh
+
+  publish:
+    # Publish only when tagging.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    name: Publish to pypi.org
+    needs: cli_test
+    steps:
       - name: Publish
         uses: pypa/gh-action-pypi-publish@master
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
