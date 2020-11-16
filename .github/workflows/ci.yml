@@ -143,17 +143,15 @@ jobs:
         with:
           name: distributable
 
-      - name: Install
-        run: |
-          pip install --upgrade pip
-          pip install pipenv
-          pipenv install "$(ls *.whl)"
-
       - name: Setup
         run: |
           cd testing/sample_project
           cp Pipfile.template Pipfile
           echo "python_version = \"${PYTHON_VERSION:?}\"" >> Pipfile
+          pip install --upgrade pip
+          pip install pipenv
+          cat Pipfile
+          pipenv install "$(ls *.whl)"
 
       - name: Version test
         run: |
