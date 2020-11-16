@@ -1,4 +1,4 @@
-name: cauth CI
+name: cauth
 
 on:  # yamllint disable-line rule:truthy
   - push
@@ -46,6 +46,7 @@ jobs:
 
   lint:
     name: Lint
+    needs: update_requirements
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,6 +64,7 @@ jobs:
 
   unit_test:
     name: Test with Python ${{ matrix.python-version }}
+    needs: update_requirements
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -85,7 +87,6 @@ jobs:
 
   build:
     needs:
-      - update_requirements
       - lint
       - unit_test
 
