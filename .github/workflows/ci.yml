@@ -5,16 +5,16 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
 
-  # Update "requirements.txt" so we can test in multiple Python versions without needing
-  # pipenv everywhere.
+  # Update "requirements.txt" so we can test in multiple Python versions without
+  # needing pipenv everywhere.
   update_requirements:
-    # Only when pushing to a development branch. Release tags and pulls into the main
-    # branch should have an up-to-date "requirements.txt" already.
+    # Only when pushing to a development branch. Release tags and pulls into the
+    # main branch should have an up-to-date "requirements.txt" already.
     if: github.event_name == 'push' &&
         startsWith(github.ref, 'refs/heads') &&
         github.ref != 'refs/heads/main'
 
-    name: Update "requirements.txt" from Pipfile
+    name: Update requirements.txt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
