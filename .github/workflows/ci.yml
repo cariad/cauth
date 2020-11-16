@@ -103,10 +103,8 @@ jobs:
         run: ./test.sh
 
   build:
-    needs:
-      - lint
-      - unit_test
-
+    name: Build wheel
+    needs: update_requirements
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -160,11 +158,7 @@ jobs:
           name: distributable
 
       - name: Install
-        run: |
-          ls -al
-          ls -al *.whl
-          pip install "dist/$(ls *.whl)"
-        # pip install "dist/$(ls dist)"
+        run: pip install "$(ls *.whl)"
 
       - name: Smoke test
         run: |
