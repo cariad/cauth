@@ -145,18 +145,30 @@ jobs:
 
       - name: CLI test
         run: |
+          # Install cauth.
+          pip install "$(ls *.whl)"
+
+          # Run cauth to get its version, and assert that it's what we expect.
+          cauth --version | tee version.tmp
+          grep -qF "${GITHUB_REF##*/}" version.tmp
+
+          # Set up environment variables for cauth to authenticate with.
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
+          # Go into the magical directory.
           cd testing/sample_project
 
+          # Create a Pipfile for this Python version.
           cp Pipfile.template Pipfile
           echo "python_version = \"${{ matrix.python-version }}\"" >> Pipfile
 
+          # Install pipenv
           pip install --upgrade pip
           pip install pipenv
-          cat Pipfile
 
+          # Assert that "tupper" is not yet installed, so we can later confirm
+          # that we definitely pulled via an authorisation token.
           set +e
           pipenv run python -m tupper
           returned=$?
@@ -166,13 +178,10 @@ jobs:
             exit 1
           fi
 
-          pipenv install "$(ls ../../*.whl)"
+          # Install our Pipfile (i.e. install "tupper") via "cauth".
+          cauth pipenv install
 
-          pipenv run cauth --version | tee version.tmp
-          grep -qF "${GITHUB_REF##*/}" version.tmp
-
-          pipenv run cauth pipenv install
-
+          # Assert that we just pulled "tupper".
           pipenv run python -m tupper
 
   publish:
