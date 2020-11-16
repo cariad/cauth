@@ -112,7 +112,7 @@ jobs:
         run: echo "${GITHUB_REF##*/}" > cauth/VERSION
 
       - name: Build
-        run: rm -rf dist && python setup.py bdist_wheel
+        run: ./build.sh
 
       - name: Archive distributable
         uses: actions/upload-artifact@v2

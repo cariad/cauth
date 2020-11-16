@@ -101,7 +101,5 @@ So, the third option is to copy `.cauth.yml` into `.cauth.user.yml`, put the nam
 ## Testing
 
 ```bash
-./test.sh
-# ...or:
-./coverage.sh
+./lint.sh && ./coverage.sh && ./build.sh
 ```
