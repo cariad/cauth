@@ -146,20 +146,24 @@ jobs:
       - name: Install
         run: |
           pip install --upgrade pip
-          pip install "$(ls *.whl)"
+          pip install pipenv
+          pipenv install "$(ls *.whl)"
 
-      - name: Smoke test
+      - name: Setup
         run: |
-          cauth --version | tee version.tmp
+          cd testing/sample_project
+          cp Pipfile.template Pipfile
+          echo "python_version = \"${PYTHON_VERSION:?}\"" >> Pipfile
+
+      - name: Version test
+        run: |
+          cd testing/sample_project
+          pipenv run cauth --version | tee version.tmp
           grep -qF "${GITHUB_REF##*/}" version.tmp
 
       - name: CLI test
         run: |
-          pip install pipenv
           cd testing/sample_project
-          cp Pipfile.template Pipfile
-          echo "${PYTHON_VERSION:?}" >> Pipfile
-          pipenv uninstall tupper
           set +e
           pipenv run python -m tupper
           returned=$?
@@ -168,7 +172,7 @@ jobs:
             echo "Expected tupper execution to fail gracefully: ${returned}"
             exit 1
           fi
-          cauth pipenv install
+          pipenv run cauth pipenv install
           pipenv run python -m tupper
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
