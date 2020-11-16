@@ -2,7 +2,7 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-from cauth.version import get_version
+from corf.version import get_version
 
 readme_path = Path(__file__).parent.joinpath("README.md")
 
@@ -15,7 +15,7 @@ setup(
     description="AWS CodeArtifact authorisation token generator for CLI tools",
     entry_points={
         "console_scripts": [
-            "cauth=cauth.__main__:cli_entry",
+            "corf=corf.__main__:cli_entry",
         ]
     },
     include_package_data=True,
