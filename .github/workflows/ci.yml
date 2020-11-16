@@ -160,7 +160,11 @@ jobs:
           name: distributable
 
       - name: Install
-        run: pip install "dist/$(ls dist)"
+        run: |
+          ls -al
+          ls -al *.whl
+          pip install "dist/$(ls *.whl)"
+        # pip install "dist/$(ls dist)"
 
       - name: Smoke test
         run: |
