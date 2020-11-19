@@ -36,9 +36,7 @@ corf pipenv install
 
 ## Installation
 
-`corf` requires **Python 3.6**, **3.7**, **3.8** or **3.9**. Python 3.5 no longer receives security updates as of 2020-09-30[^35], so I won't encourage you to use it.
-
-[^35]: https://www.python.org/dev/peps/pep-0478/
+`corf` requires **Python 3.6**, **3.7**, **3.8** or **3.9**. Python 3.5 no longer receives security updates as of 2020-09-30, so I won't encourage you to use it.
 
 ### Installing globally
 
