@@ -12,7 +12,10 @@ def get_version() -> str:
     """
     Gets the package version.
     """
-    pkg_resources = resources or cast(ModuleType, resources_legacy)
-    with pkg_resources.open_text(__package__, "VERSION") as stream:  # type: ignore
-        raw = stream.readline()
-    return str(raw.strip())
+    try:
+        pkg_resources = resources
+    except NameError:
+        pkg_resources = cast(ModuleType, resources_legacy)
+
+    with pkg_resources.open_text(__package__, "VERSION") as stream:
+        return stream.readline()
