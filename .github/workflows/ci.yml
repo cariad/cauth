@@ -59,8 +59,17 @@ jobs:
     strategy:
       matrix:
         python-version:
+          # "3.5" stopped receiving security updates 2020-09-30. I won't
+          # encourage anyone to continue using it.
+          # "3.6" is no longer supported, but will receive security updates
+          # until 2021-12.
+          - "3.6"
+          # "3.7" is no longer supported, but will receive security updates
+          # until 2023-06.
+          - "3.7"
           - "3.8"
           - "3.9"
+          - "3.10"
     steps:
       - uses: actions/checkout@v2
 
@@ -120,8 +129,17 @@ jobs:
     strategy:
       matrix:
         python-version:
+          # "3.5" stopped receiving security updates 2020-09-30. I won't
+          # encourage anyone to continue using it.
+          # "3.6" is no longer supported, but will receive security updates
+          # until 2021-12.
+          - "3.6"
+          # "3.7" is no longer supported, but will receive security updates
+          # until 2023-06.
+          - "3.7"
           - "3.8"
           - "3.9"
+          - "3.10"
     steps:
       - uses: actions/checkout@v2
 
