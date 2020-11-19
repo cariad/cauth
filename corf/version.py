@@ -1,6 +1,5 @@
 from sys import version_info
 from types import ModuleType
-from typing import cast
 
 if version_info.major == 3 and version_info.minor <= 6:
     import importlib_resources as resources_legacy
@@ -13,9 +12,9 @@ def get_version() -> str:
     Gets the package version.
     """
     try:
-        pkg_resources = resources
+        pkg_resources: ModuleType = resources
     except NameError:
-        pkg_resources = cast(ModuleType, resources_legacy)
+        pkg_resources = resources_legacy
 
-    with pkg_resources.open_text(__package__, "VERSION") as stream:
-        return stream.readline()
+    with pkg_resources.open_text(__package__, "VERSION") as stream:  # type: ignore
+        return str(stream.readline())
