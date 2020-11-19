@@ -20,13 +20,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pipenv
-          pipenv lock --dev --requirements > requirements.txt
+          pipenv lock       --requirements > requirements-dist.txt
+          pipenv lock --dev --requirements > requirements-dev.txt
 
       - name: Archive requirements.txt
         uses: actions/upload-artifact@v2
         with:
           name: requirements
-          path: requirements.txt
+          path: requirements-*.txt
           retention-days: 1
 
   lint:
@@ -47,7 +48,7 @@ jobs:
           name: requirements
 
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
       - name: Lint
         run: ./lint.sh
@@ -75,7 +76,7 @@ jobs:
           name: requirements
 
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
       - name: Test
         run: ./test.sh
@@ -98,7 +99,7 @@ jobs:
           name: requirements
 
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dist.txt
 
       - name: Version
         run: echo "${GITHUB_REF##*/}" > corf/VERSION
