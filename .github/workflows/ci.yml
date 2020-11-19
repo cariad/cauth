@@ -69,7 +69,8 @@ jobs:
           - "3.7"
           - "3.8"
           - "3.9"
-          - "3.10"
+          # "3.10" is anticipated to be released ~2021-10-25.
+          - "3.10.0-alpha.2"
     steps:
       - uses: actions/checkout@v2
 
@@ -139,7 +140,8 @@ jobs:
           - "3.7"
           - "3.8"
           - "3.9"
-          - "3.10"
+          # "3.10" is anticipated to be released ~2021-10-25.
+          - "3.10.0-alpha.2"
     steps:
       - uses: actions/checkout@v2
 
