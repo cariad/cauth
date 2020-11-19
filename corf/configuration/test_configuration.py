@@ -33,10 +33,12 @@ def test_get_variables() -> None:
     expect = ["VAR_1", "VAR_2"]
     actuals = Configuration().load().get_variables()
 
-    while var := next(actuals, None):
+    var = next(actuals, None)
+    while var:
         if var.name in expect:
             expect.remove(var.name)
         assert_variable(var=var, fail_on_unexpected=False)
+        var = next(actuals, None)
 
     # Assert that we found everything that we expected to.
     assert len(expect) == 0
