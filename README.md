@@ -36,11 +36,37 @@ corf pipenv install
 
 ## Installation
 
-`corf` requires >= Python 3.8.
+`corf` requires Python 3.6, 3.7, 3.8 or 3.9.
+
+### Installing globally
 
 ```bash
-pip install corf
+pip3 install corf
 ```
+
+### Installing in a virtual environment
+
+`corf` is happy to be installed via `pipenv`:
+
+```bash
+pipenv install corf
+```
+
+If your `Pipfile` has _only_ private sources that require authorisation tokens then you can add a handy-dandy shortcut script to pull `corf` from the public PyPI index:
+
+```text
+[scripts]
+get-corf = "pip install --upgrade corf -i https://pypi.python.org/simple"
+```
+
+To install:
+
+```bash
+pipenv shell
+pipenv run get-corf
+```
+
+If your private respository mirrors the public PyPI index and you put `corf` into your `Pipfile` dependencies then you'll need to run `get-corf` only once. Any subsequent runs of `corf pipenv install` will include updates to `corf` itself.
 
 ## Configuration
 
