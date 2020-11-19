@@ -50,7 +50,7 @@ class Authoriser:
         Gets the keyword arguments to pass to the boto3 session.
         """
         args: Dict[str, Any] = {}
-        profile_name = self.profile or self.domain.profile:
+        profile_name = self.profile or self.domain.profile
         if profile_name:
             args.update({"profile_name": profile_name})
         return args
